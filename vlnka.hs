@@ -1,6 +1,8 @@
 import Data.Char
+import Data.String
 
-
+---------------------------------------------------------------------------------------
+-- Jednoslabíčné předložky
 
 isJednoslabicnaPredlozka :: String -> Bool
 isJednoslabicnaPredlozka potentialPredlozka = case potentialPredlozka of
@@ -37,33 +39,77 @@ isJednoslabicnaPredlozka potentialPredlozka = case potentialPredlozka of
     _ -> False
 
 
+---------------------------------------------------------------------------------------
+-- čísla s jednotkou
+
 isThisStringNumber :: String -> Bool
 isThisStringNumber testedString = (all isNumber testedString) && ((length testedString) /= 0)
 
 
-isThisStringMark :: String -> Bool
-isThisStringMark testedString = case testedString of
+isThisStringUnit :: String -> Bool
+isThisStringUnit testedString = case testedString of
     "%" -> True
-    "§" -> True
     "Kč" -> True
     "$" -> True
+    "€" -> True
+    "°C" -> True
+    "°F" -> True
+    "°K" -> True
+    "°" -> True
     _ -> False
 
+isNumberWithUnit :: (String, String) -> Bool
+isNumberWithUnit (potentialNumber, potentialMark) = and [(isThisStringNumber potentialNumber), (isThisStringUnit potentialMark)]
 
-isNumberWithMark :: String -> String -> Bool
-isNumberWithMark potentialNumber potentialMark = and [(isThisStringNumber potentialNumber), (isThisStringMark potentialMark)]
-
-ovlnkujPredlozky :: [String] -> [String]
-ovlnkujPredlozky slova = concatMap (\slovo -> if (isJednoslabicnaPredlozka slovo) then [slovo, "~"] else [slovo]) slova
-
-addSpaces :: [String] -> [String]
--- adds spaces between words as another element of the list
-addSpaces words = concatMap (\word -> if (((length word) == 1) && (last word == '~')) then [word] else [word, " "]) words
-
-addSpacesRec :: [String] -> [String]
-addSpacesRec [] = []
-addSpacesRec (x:xs) = if (((length x) == 1) && (last x == '~')) then x : addSpacesRec xs else x : " " : addSpacesRec xs
 ---------------------------------------------------------------------------------------
+-- značka s číslem
+
+isThisStringMark :: String -> Bool
+isThisStringMark potentialMark = case potentialMark of
+    "§" -> True
+    "§§" -> True
+    "#" -> True
+    "*" -> True
+    "†" -> True
+    _ -> False
+
+isMarkWithNumber :: (String, String) -> Bool
+isMarkWithNumber (potentialMark, potentialNumber) = and [(isThisStringNumber potentialNumber), (isThisStringUnit potentialMark)]
+
+---------------------------------------------------------------------------------------
+-- číslo a zkratka počíteného předmětu
+
+isNumberWithAcronym :: (String, String) -> Bool
+isNumberWithAcronym (potentialNumber, potentialAcronym) = and [(isThisStringNumber potentialNumber),
+    (head ( reverse potentialAcronym) == '.')]
+
+---------------------------------------------------------------------------------------
+-- stringové funkce
+
+strip :: String -> String
+strip text = reverse (dropWhile isSpace (reverse (dropWhile isSpace text)))
+
+getPairsOfListMemebers :: [String] -> [(String,String)]
+getPairsOfListMemebers [] = []
+getPairsOfListMemebers [a] = [(a, "")]
+getPairsOfListMemebers list = concat [[(head (list), head (tail list))], getPairsOfListMemebers (tail list)]
+
+addGlueToWord :: (String, String) -> String
+addGlueToWord (word1, word2) = if shouldHaveVlnka (word1, word2) then concat [word1, "~"] else concat [word1, " "]
+
+---------------------------------------------------------------------------------------
+-- vlnka
+
+shouldHaveVlnka :: (String, String) -> Bool
+shouldHaveVlnka pairOfWords = foldr (||) False [
+    isNumberWithUnit pairOfWords,
+    isJednoslabicnaPredlozka (fst pairOfWords),
+    isNumberWithAcronym pairOfWords,
+    isMarkWithNumber pairOfWords]
+
 
 vlnka :: String -> String
-vlnka text = foldr (++) "" (addSpaces (ovlnkujPredlozky (words text)))
+vlnka text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers(words text))))
+
+main = interact vlnka
+
