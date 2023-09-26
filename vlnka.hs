@@ -52,6 +52,7 @@ isThisStringNumber testedString =
         _ -> False
 
 endsWithNumber :: String -> Bool
+endsWithNumber "" = False
 endsWithNumber testedString = isThisStringNumber (last (words testedString))
 
 isThisStringUnit :: String -> Bool
@@ -122,11 +123,13 @@ vlnka_ast [a,b] = [a,b]
 vlnka_ast (Str a: Text.Pandoc.JSON.Space : Str b : rest) |  shouldHaveVlnka (T.unpack a, T.unpack b) =  vlnka_ast ((Str (T.concat [a, T.pack "\160", b])) : rest )
 vlnka_ast (a : rest) = a : vlnka_ast rest
 
-vlnka :: T.Text -> T.Text
-vlnka text = T.pack (vlnka_str (T.unpack text))
+vlnka_txt :: T.Text -> T.Text
+vlnka_txt text = T.pack (vlnka_str (T.unpack text))
 
-vlnka_str :: String -> String
-vlnka_str text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers(words text))))
+vlnka :: String -> String
+vlnka text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers(words text))))
+
+main = toJSONFilter vlnka_ast
 
 --vlnka_inline :: Inline -> Inline
 --vlnka_inline (Str text) = Str (vlnka text)
@@ -152,6 +155,4 @@ vlnka_str text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers
 
 
 
-
-main = toJSONFilter vlnka_ast
 
