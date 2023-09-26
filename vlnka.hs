@@ -88,8 +88,7 @@ isMarkWithNumber (potentialMark, potentialNumber) = and [(isThisStringNumber pot
 -- číslo a zkratka počíteného předmětu
 
 isNumberWithAcronym :: (String, String) -> Bool
-isNumberWithAcronym (potentialNumber, potentialAcronym) = and [(isThisStringNumber potentialNumber),
-    (head ( reverse potentialAcronym) == '.')]
+isNumberWithAcronym (potentialNumber, potentialAcronym) = potentialAcronym /= "" && (isThisStringNumber potentialNumber) && (head ( reverse potentialAcronym) == '.')
 
 ---------------------------------------------------------------------------------------
 -- stringové funkce
