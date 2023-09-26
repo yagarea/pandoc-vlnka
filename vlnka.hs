@@ -120,39 +120,44 @@ vlnka_ast :: [Inline] -> [Inline]
 vlnka_ast [] = []
 vlnka_ast [a] = [a]
 vlnka_ast [a,b] = [a,b]
-vlnka_ast (Str a: Text.Pandoc.JSON.Space : Str b : rest) |  shouldHaveVlnka (T.unpack a, T.unpack b) =  vlnka_ast ((Str (T.concat [a, T.pack "\160", b])) : rest )
+vlnka_ast (a : Text.Pandoc.JSON.Space : b : rest) | shouldHaveVlnka_Inline a b =
+    a : (Str (T.pack "\160") : (vlnka_ast (b : rest)))
 vlnka_ast (a : rest) = a : vlnka_ast rest
 
+
+shouldHaveVlnka_Inline :: Inline -> Inline -> Bool
+shouldHaveVlnka_Inline a b = case ( unwrap_inline a , unwrap_inline b ) of
+    ([], _) -> False
+    (_, []) -> False
+    (x,y) -> shouldHaveVlnka (last x, head y)
+
+
 vlnka_txt :: T.Text -> T.Text
-vlnka_txt text = T.pack (vlnka_str (T.unpack text))
+vlnka_txt text = T.pack (vlnka (T.unpack text))
 
 vlnka :: String -> String
 vlnka text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers(words text))))
 
 main = toJSONFilter vlnka_ast
 
---vlnka_inline :: Inline -> Inline
---vlnka_inline (Str text) = Str (vlnka text)
---vlnka_inline (Emph inlines) = Emph (map vlnka_inline inlines)
---vlnka_inline (Strong inlines) = Strong (map vlnka_inline inlines)
---vlnka_inline (Strikeout inlines) = Strikeout (map vlnka_inline inlines)
---vlnka_inline (Superscript inlines) = Superscript (map vlnka_inline inlines)
---vlnka_inline (Subscript inlines) = Subscript (map vlnka_inline inlines)
---vlnka_inline (SmallCaps inlines) = SmallCaps (map vlnka_inline inlines)
---vlnka_inline (Quoted quoteType inlines) = Quoted quoteType (map vlnka_inline inlines)
---vlnka_inline (Cite citations inlines) = Cite citations (map vlnka_inline inlines)
---vlnka_inline (Code attr text) = Code attr text
---vlnka_inline (Text.Pandoc.JSON.Space) = Text.Pandoc.JSON.Space
---vlnka_inline (SoftBreak) = SoftBreak
---vlnka_inline (LineBreak) = LineBreak
---vlnka_inline (Math mathType text) = Math mathType text
---vlnka_inline (RawInline format text) = RawInline format text
---vlnka_inline (Link attr inlines target) = Link attr (map vlnka_inline inlines) target
---vlnka_inline (Image attr inlines target) = Image attr (map vlnka_inline inlines) target
---vlnka_inline (Note blocks) = Note blocks
---vlnka_inline (Span attr inlines) = Span attr (map vlnka_inline inlines)
-
-
-
-
+unwrap_inline :: Inline -> [String]
+unwrap_inline (Str a) = [T.unpack a]
+unwrap_inline (Text.Pandoc.JSON.Space) = []
+unwrap_inline (SoftBreak) = []
+unwrap_inline (LineBreak) = []
+unwrap_inline (Emph a) = concat (map unwrap_inline a)
+unwrap_inline (Strong a) = concat (map unwrap_inline a)
+unwrap_inline (Strikeout a) = concat (map unwrap_inline a)
+unwrap_inline (Superscript a) = concat (map unwrap_inline a)
+unwrap_inline (Subscript a) = concat (map unwrap_inline a)
+unwrap_inline (SmallCaps a) = concat (map unwrap_inline a)
+unwrap_inline (Quoted a b) = concat (map unwrap_inline b)
+unwrap_inline (Cite a b) = concat (map unwrap_inline b)
+unwrap_inline (Code a b) = []
+unwrap_inline (Math a b) = []
+unwrap_inline (RawInline a b) = []
+unwrap_inline (Link a b c) = concat (map unwrap_inline b)
+unwrap_inline (Image a b c) = concat (map unwrap_inline b)
+unwrap_inline (Note a) = []
+unwrap_inline (Span a b) = concat (map unwrap_inline b)
 
