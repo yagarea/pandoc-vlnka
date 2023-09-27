@@ -24,3 +24,5 @@ cabal.project.local~
 vlnka
 build/
 
+dump.json
+tests/test_output.md

@@ -23,6 +23,7 @@ To test this program you have to:
 This will run vlnka as filter on example `.tex` file and check if it outputs expected output.
 
 In case if it does not work it will print diff of expected output and actual output.
+You will also find `dump.json` file containing AST of tested document in projects root directory.
 
 ### License
 This project is published under [GPLv3 license](https://github.com/yagarea/pandoc-vlnka/blob/master/LICENSE).
