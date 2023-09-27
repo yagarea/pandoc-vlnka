@@ -1,4 +1,4 @@
-# build instruction
+# Build instructions
 
 ## Dependencies
 Make shure you have these libraries installed:
@@ -17,15 +17,10 @@ Then Open the directory with source code
 cd pandoc-vlnka
 ```
 
-and as a last step compile source code with `ghc`
+To compile code run
 
 ```sh
-ghc -dynamic vlnka.hs
+make
 ```
 
-add executable flag to new binary:
-
-```sh
-chmod +x vlnka
-```
-
+Now you have executable binary in `build` directory.
