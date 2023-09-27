@@ -4,7 +4,7 @@ This is pandoc filter for adding nonbreakable spaces (`~`) to text in Czech lang
 Everything is written in haskell.
 
 
-## [Build instruction]() | [Vlnka library documnetation]()
+## [Build instruction](https://github.com/yagarea/pandoc-vlnka/blob/master/docs/build.md) | [Vlnka library documnetation](https://github.com/yagarea/pandoc-vlnka/blob/master/docs/library-doc.md)
 
 ### As filter
 After compilation you can use the executable file as a pandoc filter.
