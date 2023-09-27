@@ -5,5 +5,5 @@ MAKEFLAGS += --silent
 
 build:
 	echo "Compiling..."
-	ghc -dynamic vlnka.hs -o vlnka
+	ghc -dynamic ./src/vlnka.hs -o vlnka
 	echo "Done."
