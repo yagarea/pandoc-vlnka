@@ -8,7 +8,7 @@ import Numeric
 -- Jednoslabíčné předložky
 
 isJednoslabicnaPredlozka :: String -> Bool
-isJednoslabicnaPredlozka potentialPredlozka = case potentialPredlozka of
+isJednoslabicnaPredlozka potentialPredlozka = case map toLower potentialPredlozka of
     "bez" -> True
     "dík" -> True
     "dle" -> True
