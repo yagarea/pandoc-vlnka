@@ -1,4 +1,4 @@
 #!/bin/bash
 
-tee dump.json
+tee /tmp/vlnka-ast-dump.json
 
