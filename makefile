@@ -3,7 +3,7 @@ MAKEFLAGS += --silent
 
 .PHONY: build
 
-build:
+build: clean
 	mkdir -p build
 	echo "Compiling..."
 	ghc -dynamic ./src/vlnka.hs -o ./build/vlnka
@@ -15,15 +15,19 @@ test:
 	pandoc --filter ./tests/ast_dump.sh  --to=markdown -o /dev/null ./tests/test2.tex
 	cat /tmp/vlnka-ast-dump.json | jq
 	# Test 1
+	echo Test 1
 	pandoc --filter ./build/vlnka ./tests/test1.tex -o ./tests/test1_output.tex
 	diff ./tests/test1_output.tex ./tests/test1_output_expected.tex
 	# Test 2
+	echo Test 2
 	pandoc --filter ./build/vlnka ./tests/test2.tex -o ./tests/test2_output.tex
 	diff ./tests/test2_output.tex ./tests/test2_output_expected.tex
 	# Test 3
+	echo Test 3
 	pandoc --filter ./build/vlnka ./tests/test3.tex -o ./tests/test3_output.tex
 	diff ./tests/test3_output.tex ./tests/test3_output_expected.tex
 	# Test 4
+	echo Test 4
 	pandoc --filter ./build/vlnka ./tests/test4.tex -o ./tests/test4_output.tex
 	diff ./tests/test4_output.tex ./tests/test4_output_expected.tex
 

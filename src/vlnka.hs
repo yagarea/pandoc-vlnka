@@ -62,9 +62,21 @@ isThisStringUnit testedString = case testedString of
     "$" -> True
     "€" -> True
     "°C" -> True
+    "C" -> True
     "°F" -> True
+    "F" -> True
     "°K" -> True
+    "K" -> True
     "°" -> True
+    "m" -> True
+    "cm" -> True
+    "mm" -> True
+    "km" -> True
+    "kg" -> True
+    "g" -> True
+    "mg" -> True
+    "l" -> True
+    "ml" -> True
     _ -> False
 
 isNumberWithUnit :: (String, String) -> Bool
@@ -103,33 +115,37 @@ getPairsOfListMemebers [a] = [(a, "")]
 getPairsOfListMemebers list = concat [[(head (list), head (tail list))], getPairsOfListMemebers (tail list)]
 
 addGlueToWord :: (String, String) -> String
-addGlueToWord (word1, word2) = if shouldHaveVlnka (word1, word2) then concat [word1, "~"] else concat [word1, " "]
+addGlueToWord (word1, word2) = if (shouldHaveVlnka "" word1 word2) then concat [word1, "~"] else concat [word1, " "]
 
 ---------------------------------------------------------------------------------------
 -- vlnka
 
-shouldHaveVlnka :: (String, String) -> Bool
-shouldHaveVlnka pairOfWords = foldr (||) False [
-    isNumberWithUnit pairOfWords,
-    isJednoslabicnaPredlozka (fst pairOfWords),
-    isNumberWithAcronym pairOfWords,
-    isMarkWithNumber pairOfWords]
+shouldHaveVlnka :: String -> String -> String -> Bool
+shouldHaveVlnka pre a b = (not (isNumberWithUnit (pre, a))) && (foldr (||) False [
+    isNumberWithUnit (a, b),
+    isJednoslabicnaPredlozka a,
+    isNumberWithAcronym (a, b),
+    isMarkWithNumber (a, b)])
+
+safe_head :: [String] -> String
+safe_head [] = ""
+safe_head list = head list
+
+vlnka_ast :: String -> [Inline] -> [Inline]
+vlnka_ast _ [] = []
+vlnka_ast _ [a] = [a]
+vlnka_ast _ [a,b] = [a,b]
+vlnka_ast prev (a : Text.Pandoc.JSON.Space : b : rest)
+    | shouldHaveVlnka_Inline prev a b =
+        a : (Str (T.pack "\160") : (vlnka_ast (safe_head (unwrap_inline a)) (b : rest)))
+vlnka_ast _ (a : rest) = a : vlnka_ast (safe_head (unwrap_inline a)) rest
 
 
-vlnka_ast :: [Inline] -> [Inline]
-vlnka_ast [] = []
-vlnka_ast [a] = [a]
-vlnka_ast [a,b] = [a,b]
-vlnka_ast (a : Text.Pandoc.JSON.Space : b : rest) | shouldHaveVlnka_Inline a b =
-    a : (Str (T.pack "\160") : (vlnka_ast (b : rest)))
-vlnka_ast (a : rest) = a : vlnka_ast rest
-
-
-shouldHaveVlnka_Inline :: Inline -> Inline -> Bool
-shouldHaveVlnka_Inline a b = case ( unwrap_inline a , unwrap_inline b ) of
+shouldHaveVlnka_Inline :: String -> Inline -> Inline -> Bool
+shouldHaveVlnka_Inline prev a b = case ( unwrap_inline a , unwrap_inline b ) of
     ([], _) -> False
     (_, []) -> False
-    (x,y) -> shouldHaveVlnka (last x, head y)
+    (x,y) -> shouldHaveVlnka prev (last x) (head y)
 
 
 vlnka_txt :: T.Text -> T.Text
@@ -138,7 +154,7 @@ vlnka_txt text = T.pack (vlnka (T.unpack text))
 vlnka :: String -> String
 vlnka text = strip (foldr (++) "" (map addGlueToWord (getPairsOfListMemebers(words text))))
 
-main = toJSONFilter vlnka_ast
+main = toJSONFilter (vlnka_ast "")
 
 unwrap_inline :: Inline -> [String]
 unwrap_inline (Str a) = [T.unpack a]
