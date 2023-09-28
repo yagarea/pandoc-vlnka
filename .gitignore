@@ -25,4 +25,4 @@ vlnka
 build/
 
 dump.json
-tests/test_output.md
+tests/test*_output.tex
