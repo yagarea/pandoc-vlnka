@@ -23,6 +23,9 @@ test:
 	# Test 3
 	pandoc --filter ./build/vlnka ./tests/test3.tex -o ./tests/test3_output.tex
 	diff ./tests/test3_output.tex ./tests/test3_output_expected.tex
+	# Test 4
+	pandoc --filter ./build/vlnka ./tests/test4.tex -o ./tests/test4_output.tex
+	diff ./tests/test4_output.tex ./tests/test4_output_expected.tex
 
 clean:
 	rm -rf build/*
